@@ -117,6 +117,37 @@ def _sum_two_blocks(block0, block1, vol):
 
 
 
+def sin(f, x, u):
+    """Sin transform using trapezoids.
+    """
+    assert len(f) == len(x), 'Length of f and x vectors differ'
+    out = np.zeros(len(u))
+    for i, ui in enumerate(u):
+        y = f * np.sin(2 * np.pi * ui * x)
+        out[i] = np.trapz(y=y, x=x)
+    return out
+
+
+
+def fourier_transform_isotropic_3D(y, x, u0, u1, N=2**7):
+    """
+    """
+
+    u = np.linspace(u0, u1, N)
+    k = 2 * np.pi * u
+
+    nonzero_i = np.nonzero(u)[0]
+    zero_i = np.nonzero(u == 0.)[0]
+
+    S = np.ones(N)
+    S[nonzero_i] = sin(y * x, x, u[nonzero_i]) / u[nonzero_i]
+    S[zero_i] = np.trapz(y=y * x ** 2, x=x) * 2 * np.pi
+    S = S / S.max()
+
+    return S, k
+
+
+
 # def sum_all_moving_blocks(vol, block_set):
 #     """Find correlation by considering dot product between every block having
 #     block_shape in the volume and every other block having block_shape in
